@@ -1,24 +1,31 @@
-// App.tsx (Recordatorio visual)
 import { Button } from "./components/ui/button";
 import { Navbar } from "./components/navbar";
 import useFuturama from "./hooks/useFuturama";
+import { ThemeProvider } from "./components/theme-provider"; // <--- IMPORTANTE
 
 function App() {
   const { fetchFuturama } = useFuturama();
 
   return (
-    <div className="min-h-svh bg-background">
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4">
-           <Navbar />
-        </div>
-      </header>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <div className="min-h-svh bg-background text-foreground transition-colors duration-300">
+        
+        {/* Header */}
+        <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+          <div className="container mx-auto px-4">
+            <Navbar />
+          </div>
+        </header>
 
-      <main className="container mx-auto px-4 flex flex-col items-center justify-center gap-4 py-20">
-         {/* ... resto de tu app ... */}
-         <Button onClick={fetchFuturama}>Cargar Datos</Button>
-      </main>
-    </div>
+        {/* Main Content */}
+        <main className="container mx-auto px-4 flex flex-col items-center justify-center gap-4 py-20">
+          <h1 className="text-3xl font-bold tracking-tight">Bienvenido al análisis sistémico</h1>
+          <p className="text-muted-foreground">Haz clic abajo para probar tu conexión API</p>
+          <Button onClick={fetchFuturama}>Cargar Datos de Futurama</Button>
+        </main>
+        
+      </div>
+    </ThemeProvider>
   );
 }
 
