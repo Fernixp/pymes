@@ -1,44 +1,34 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route} from "react-router-dom"; // <--- Importamos Outlet
 import { ThemeProvider } from "@/components/theme-provider";
-
-import { ScrollToTop } from "./components/home/scroll-to-top";
-import { Navbar01 } from "./components/ui/shadc-io/navbar-01";
 import { HomePage } from "./pages/home";
 import PricingPage from "./pages/pricing";
 import ChatAi from "./pages/chat-ai";
 import Reporte from "./pages/reporte";
-
+import { AboutSection } from "./pages/about";
+import Login from "./pages/login"; // Tu componente Login existente
+import { MainLayout } from "./layouts/MainLayout";
+import { AuthLayout } from "./layouts/auth.layout";
+import Register from "./pages/register";
 function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <Router>
-        <div className="min-h-svh bg-background text-foreground transition-colors duration-300 relative">
-          
-          <header className="border-b bg-card/50 sticky top-0 z-50 backdrop-blur-md">
-            <div className="container mx-auto px-4">
-              <Navbar01 
-                navigationLinks={[
-                  { label: "Home", href: "/" },
-                  { label: "Chat AI", href: "/chat-ai" },
-                  { label: "Reporte", href: "/reporte" },
-                  { label: "Pricing", href: "/pricing" },
-                  { label: "About", href: "#about" } 
-                ]}
-              />
-            </div>
-          </header>
+        <Routes>
+          {/* GRUPO 1: Rutas con Navbar (Públicas/App) */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/chat-ai" element={<ChatAi />} />
+            <Route path="/reporte" element={<Reporte />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/about" element={<AboutSection />} />
+          </Route>
 
-          <main className="container mx-auto px-4">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/chat-ai" element={<ChatAi />} />
-              <Route path="/reporte" element={<Reporte />} />
-              <Route path="/pricing" element={<PricingPage />} />
-            </Routes>
-          </main>
-
-          <ScrollToTop />
-        </div>
+          {/* GRUPO 2: Rutas de Autenticación (Sin Navbar, Centradas) */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
+        </Routes>
       </Router>
     </ThemeProvider>
   );

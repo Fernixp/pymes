@@ -77,7 +77,7 @@ const PricingPage = () => {
   const [frequency, setFrequency] = useState<string>('monthly');
 
   return (
-    <div className="not-prose flex flex-col gap-16 px-8 py-24 text-center">
+    <div className="not-prose flex flex-col gap-16 px-8 py-24 text-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
       <div className="flex flex-col items-center justify-center gap-8">
         <h1 className="mb-0 font-semibold text-5xl tracking-tight">
           Precios simples y transparentes
