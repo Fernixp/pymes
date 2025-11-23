@@ -1,13 +1,12 @@
 import { Navbar } from "@/components/navbar";
-import useFuturama from "@/hooks/useFuturama";
 import { ThemeProvider } from "@/components/theme-provider";
 import { HeroSection } from "./components/home/hero-section";
 import { FeaturesSection } from "./components/home/features-section";
 import { HowItWorksSection } from "./components/home/hows-it-works-section";
 import { TheorySection } from "./components/home/theory-section";
+import { ScrollToTop } from "./components/home/scroll-to-top";
 
 function App() {
-  const { fetchFuturama } = useFuturama();
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -23,6 +22,7 @@ function App() {
           <HowItWorksSection />
           <TheorySection />
         </main>
+        <ScrollToTop />
       </div>
     </ThemeProvider>
   );
