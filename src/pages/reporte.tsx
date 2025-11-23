@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useDiagnostic } from "@/context/DiagnosticContext"; // <--- Importar
 import { FileText, BarChart3, GitCompare, Lightbulb, Download, Home, TrendingDown, Sparkles, Brain } from 'lucide-react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -7,97 +7,81 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
 
-const MOCK_DATA = {
-  companyName: "Empresa Cliente",
-  problem: "Desorganización en procesos y baja moral",
-  problemType: "blando",
-  subsystems: {
-    ventas: 4,
-    compras: 2,
-    produccion: 1,
-    rrhh: 5
-  },
-  currentActivities: ["Proceso manual", "Comunicación informal", "Sin métricas"],
-  idealActivities: ["CRM Automatizado", "Canales definidos", "Dashboard en tiempo real"]
-};
-
 export default function Reporte() {
-  const [data] = useState(MOCK_DATA);
+  const { data } = useDiagnostic(); // <--- Usar datos reales del contexto
 
+  // Preparamos datos para los gráficos
   const subsystemsData = [
     { subsystem: 'Ventas', value: data.subsystems.ventas },
     { subsystem: 'Compras', value: data.subsystems.compras },
-    { subsystem: 'Producción', value: data.subsystems.produccion },
+    { subsystem: 'Prod.', value: data.subsystems.produccion },
     { subsystem: 'RRHH', value: data.subsystems.rrhh },
   ];
 
-  const totalImpact = subsystemsData.reduce((sum, item) => sum + item.value, 0);
-  const avgImpact = totalImpact / subsystemsData.length;
-  const entropyLevel = (avgImpact / 5) * 100;
-
+  // Intervenciones dinámicas básicas basadas en la tipología
   const interventions = [
-    ...(data.subsystems.ventas >= 3 ? [{ area: 'Ventas', text: 'Implementar CRM y seguimiento.', impact: 'Alto' }] : []),
-    ...(data.subsystems.rrhh >= 3 ? [{ area: 'RRHH', text: 'Capacitación y mejora de clima.', impact: 'Alto' }] : []),
-    { area: 'Sistémica', text: 'Reuniones de retroalimentación.', impact: 'Medio' },
-    { area: 'Control', text: 'Tablero de indicadores.', impact: 'Medio' },
+    data.problemType === 'blando' 
+      ? { area: 'RRHH', text: 'Talleres de comunicación y definición de roles (MSB).', impact: 'Alto' }
+      : { area: 'Operaciones', text: 'Estandarización de procesos productivos.', impact: 'Alto' },
+    { area: 'Sistémica', text: 'Establecer reuniones de retroalimentación semanal.', impact: 'Medio' },
+    data.entropyLevel > 60 
+      ? { area: 'Gestión', text: 'Plan de choque para reducción de entropía.', impact: 'Crítico' }
+      : { area: 'Control', text: 'Monitorización de KPIs básicos.', impact: 'Bajo' }
   ];
 
-  const msbGaps = data.currentActivities.map((current, i) => ({
-    current,
-    ideal: data.idealActivities[i] || "No definido",
-    hasGap: current !== data.idealActivities[i]
-  }));
-
-  // --- Render ---
   return (
     <div className="container mx-auto p-6 space-y-8 animate-in fade-in duration-500">
       
-      {/* Header Minimalista */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <Sparkles className="h-4 w-4" />
-            <span className="text-sm font-medium">Diagnóstico IA Generado</span>
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">Diagnóstico Sistémico Finalizado</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight">{data.companyName}</h1>
-          <p className="text-muted-foreground">{data.problem}</p>
+          <p className="text-muted-foreground max-w-2xl">{data.problemDescription}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
             <Link to="/chat-ai">
               <Home className="mr-2 h-4 w-4" />
-              Nuevo
+              Nuevo Diagnóstico
             </Link>
           </Button>
           <Button>
             <Download className="mr-2 h-4 w-4" />
-            Exportar
+            Descargar PDF
           </Button>
         </div>
       </div>
 
       <Separator />
 
+      {/* KPIs Principales */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className={data.entropyLevel > 70 ? "border-destructive/50" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Entropía Organizacional</CardTitle>
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{entropyLevel.toFixed(0)}%</div>
+            <div className={cn("text-2xl font-bold", data.entropyLevel > 70 ? "text-destructive" : "")}>
+              {data.entropyLevel.toFixed(0)}%
+            </div>
             <p className="text-xs text-muted-foreground">Nivel de desorden sistémico</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tipología</CardTitle>
+            <CardTitle className="text-sm font-medium">Tipología de Problema</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold capitalize">{data.problemType}</div>
-            <p className="text-xs text-muted-foreground">Clasificación Problemológica</p>
+            <Badge variant={data.problemType === 'blando' ? 'secondary' : 'outline'} className="text-lg capitalize mb-1">
+              {data.problemType}
+            </Badge>
+            <p className="text-xs text-muted-foreground">Según Checkland</p>
           </CardContent>
         </Card>
         
@@ -107,8 +91,8 @@ export default function Reporte() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{subsystemsData.filter(s => s.value >= 3).length}</div>
-            <p className="text-xs text-muted-foreground">Áreas con impacto alto</p>
+            <div className="text-2xl font-bold">{subsystemsData.filter(s => s.value >= 4).length}</div>
+            <p className="text-xs text-muted-foreground">Áreas con impacto alto ({'>'}3)</p>
           </CardContent>
         </Card>
       </div>
@@ -117,18 +101,17 @@ export default function Reporte() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="flex flex-col">
           <CardHeader>
-            <CardTitle>Impacto por Subsistema</CardTitle>
-            <CardDescription>Análisis de afectación por área.</CardDescription>
+            <CardTitle>Impacto en Subsistemas</CardTitle>
+            <CardDescription>Afectación (1-5) según tu entrevista.</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 min-h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={subsystemsData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="subsystem" className="text-xs" tickLine={false} axisLine={false} />
-                <YAxis className="text-xs" tickLine={false} axisLine={false} domain={[0, 5]} />
+                <XAxis dataKey="subsystem" className="text-xs" />
+                <YAxis className="text-xs" domain={[0, 5]} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }}
-                  itemStyle={{ color: 'hsl(var(--foreground))' }}
+                   contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}
                 />
                 <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -138,15 +121,15 @@ export default function Reporte() {
 
         <Card className="flex flex-col">
           <CardHeader>
-            <CardTitle>Radar Sistémico</CardTitle>
-            <CardDescription>Visualización holística del problema.</CardDescription>
+            <CardTitle>Radar Holístico</CardTitle>
+            <CardDescription>Visualización del desbalance del sistema.</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 min-h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="80%" data={subsystemsData}>
                 <PolarGrid className="stroke-muted" />
                 <PolarAngleAxis dataKey="subsystem" className="text-xs fill-muted-foreground" />
-                <PolarRadiusAxis angle={30} domain={[0, 5]} className="text-xs fill-muted-foreground" />
+                <PolarRadiusAxis angle={30} domain={[0, 5]} className="text-xs" />
                 <Radar name="Impacto" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
               </RadarChart>
             </ResponsiveContainer>
@@ -154,31 +137,39 @@ export default function Reporte() {
         </Card>
       </div>
 
-      {/* Comparativa MSB y Soluciones */}
+      {/* Metodología de Sistemas Blandos (MSB) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* Comparación */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <GitCompare className="h-5 w-5" />
-              <CardTitle>Comparación MSB</CardTitle>
+              <GitCompare className="h-5 w-5 text-primary" />
+              <CardTitle>Comparación MSB (Realidad vs Ideal)</CardTitle>
             </div>
-            <CardDescription>Brecha entre Realidad vs. Situación Ideal.</CardDescription>
+            <CardDescription>Brecha detectada en la entrevista.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {msbGaps.map((gap, i) => (
-              <div key={i} className="grid grid-cols-2 gap-4 text-sm border p-3 rounded-md">
-                <div>
-                  <span className="font-semibold block mb-1">Realidad:</span>
-                  <span className="text-muted-foreground">{gap.current}</span>
+            {data.msbAnalysis.length > 0 ? (
+              data.msbAnalysis.map((gap, i) => (
+                <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm border p-4 rounded-lg bg-card/50">
+                  <div className="space-y-1">
+                    <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider flex items-center gap-1">
+                      <div className="h-2 w-2 rounded-full bg-red-400"></div> Realidad Actual
+                    </span>
+                    <p className="text-foreground leading-relaxed pl-3 border-l-2 border-red-400/20">{gap.current}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider flex items-center gap-1">
+                       <div className="h-2 w-2 rounded-full bg-green-400"></div> Modelo Ideal
+                    </span>
+                    <p className="text-foreground leading-relaxed pl-3 border-l-2 border-green-400/20">{gap.ideal}</p>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-semibold block mb-1">Ideal:</span>
-                  <span className="text-foreground">{gap.ideal}</span>
-                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No hay datos de análisis comparativo.
               </div>
-            ))}
+            )}
           </CardContent>
         </Card>
 
@@ -186,21 +177,23 @@ export default function Reporte() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5" />
-              <CardTitle>Intervenciones Propuestas</CardTitle>
+              <Lightbulb className="h-5 w-5 text-yellow-500" />
+              <CardTitle>Intervenciones Sistémicas</CardTitle>
             </div>
-            <CardDescription>Acciones recomendadas por la IA.</CardDescription>
+            <CardDescription>Acciones para reducir la entropía.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {interventions.map((item, i) => (
               <div key={i} className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="secondary">{item.area}</Badge>
+                    <Badge variant="outline" className="text-[10px] uppercase">{item.area}</Badge>
                   </div>
-                  <p className="text-sm">{item.text}</p>
+                  <p className="text-sm font-medium">{item.text}</p>
                 </div>
-                <Badge variant={item.impact === 'Alto' ? 'destructive' : 'outline'}>
+                <Badge className={cn(
+                  item.impact === 'Alto' || item.impact === 'Crítico' ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                )}>
                   {item.impact}
                 </Badge>
               </div>
@@ -209,12 +202,17 @@ export default function Reporte() {
         </Card>
       </div>
 
-      <div className="bg-muted/50 border rounded-lg p-4 flex gap-3 items-start">
-        <Brain className="h-5 w-5 mt-0.5 text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">
-          Este reporte es un modelo preliminar basado en la información proporcionada. Se recomienda la validación humana antes de la implementación.
+      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex gap-3 items-start">
+        <Brain className="h-5 w-5 mt-0.5 text-primary" />
+        <p className="text-sm text-foreground/80">
+          <strong>Análisis IA:</strong> El sistema presenta un nivel de entropía del {data.entropyLevel.toFixed(0)}%. Se recomienda priorizar los subsistemas marcados en el radar para estabilizar el suprasistema organizacional.
         </p>
       </div>
     </div>
   );
+}
+
+// Helper para concatenar clases (debe estar en tu utils, pero por si acaso)
+function cn(...classes: (string | undefined | null | false)[]) {
+  return classes.filter(Boolean).join(' ');
 }
