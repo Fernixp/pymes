@@ -2,10 +2,10 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState, useRef } from "react";
+import { Link, useLocation } from "react-router-dom"; // <--- IMPORTANTE: Importamos Link y useLocation
 import {
   NavigationMenu,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import {
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
+
 // Simple logo component for the navbar
 const Logo = (props: React.SVGAttributes<SVGElement>) => {
   return (
@@ -47,6 +48,7 @@ const Logo = (props: React.SVGAttributes<SVGElement>) => {
     </svg>
   );
 };
+
 // Hamburger icon component
 const HamburgerIcon = ({
   className,
@@ -79,12 +81,14 @@ const HamburgerIcon = ({
     />
   </svg>
 );
+
 // Types
 export interface Navbar01NavLink {
   href: string;
   label: string;
   active?: boolean;
 }
+
 export interface Navbar01Props extends React.HTMLAttributes<HTMLElement> {
   logo?: React.ReactNode;
   logoHref?: string;
@@ -96,24 +100,25 @@ export interface Navbar01Props extends React.HTMLAttributes<HTMLElement> {
   onSignInClick?: () => void;
   onCtaClick?: () => void;
 }
+
 // Default navigation links
 const defaultNavigationLinks: Navbar01NavLink[] = [
-  { href: "#", label: "Home", active: true },
-  { href: "#features", label: "Features" },
-  { href: "#pricing", label: "Pricing" },
+  { href: "/", label: "Home", active: true },
+  { href: "/pricing", label: "Pricing" },
   { href: "#about", label: "About" },
 ];
+
 export const Navbar01 = React.forwardRef<HTMLElement, Navbar01Props>(
   (
     {
       className,
       logo = <Logo />,
-      logoHref = "#",
+      logoHref = "/",
       navigationLinks = defaultNavigationLinks,
-      signInText = "Sign In",
-      signInHref = "#signin",
-      ctaText = "Get Started",
-      ctaHref = "#get-started",
+      signInText = "Iniciar sesión",
+      signInHref = "/login", // Default ruta
+      ctaText = "Registrarse",
+      ctaHref = "/register", // Default ruta
       onSignInClick,
       onCtaClick,
       ...props
@@ -122,6 +127,8 @@ export const Navbar01 = React.forwardRef<HTMLElement, Navbar01Props>(
   ) => {
     const [isMobile, setIsMobile] = useState(false);
     const containerRef = useRef<HTMLElement>(null);
+    const location = useLocation(); // Hook para saber en qué ruta estamos
+
     useEffect(() => {
       const checkWidth = () => {
         if (containerRef.current) {
@@ -138,6 +145,7 @@ export const Navbar01 = React.forwardRef<HTMLElement, Navbar01Props>(
         resizeObserver.disconnect();
       };
     }, []);
+
     // Combine refs
     const combinedRef = React.useCallback(
       (node: HTMLElement | null) => {
@@ -150,11 +158,12 @@ export const Navbar01 = React.forwardRef<HTMLElement, Navbar01Props>(
       },
       [ref]
     );
+
     return (
       <header
         ref={combinedRef}
         className={cn(
-          "sticky top-0 z-50 w-full border-b backdrop-blur-sm px-4 md:px-6 **:no-underline",
+          "sticky top-0 z-50 w-full border-b backdrop-blur-sm px-4 md:px-6 **:no-underline bg-background/80",
           className
         )}
         {...props}
@@ -179,17 +188,18 @@ export const Navbar01 = React.forwardRef<HTMLElement, Navbar01Props>(
                     <NavigationMenuList className="flex-col items-start gap-1">
                       {navigationLinks.map((link, index) => (
                         <NavigationMenuItem key={index} className="w-full">
-                          <button
-                            onClick={(e) => e.preventDefault()}
+                          {/* Enlace Móvil con Link */}
+                          <Link
+                            to={link.href}
                             className={cn(
                               "flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer no-underline",
-                              link.active
+                              location.pathname === link.href
                                 ? "bg-accent text-accent-foreground"
                                 : "text-foreground/80"
                             )}
                           >
                             {link.label}
-                          </button>
+                          </Link>
                         </NavigationMenuItem>
                       ))}
                     </NavigationMenuList>
@@ -197,34 +207,38 @@ export const Navbar01 = React.forwardRef<HTMLElement, Navbar01Props>(
                 </PopoverContent>
               </Popover>
             )}
+
             {/* Main nav */}
             <div className="flex items-center gap-6">
-              <button
-                onClick={(e) => e.preventDefault()}
-                className="flex items-center space-x-2 text-primary hover:text-primary/90 transition-colors cursor-pointer"
+              {/* Logo con Link */}
+              <Link
+                to={logoHref}
+                className="flex items-center space-x-2 text-primary hover:text-primary/90 transition-colors cursor-pointer no-underline"
               >
                 <div className="text-2xl">{logo}</div>
                 <span className="hidden font-bold text-xl sm:inline-block">
                   Pymes TGS
                 </span>
-              </button>
-              {/* Navigation menu */}
+              </Link>
+
+              {/* Navigation menu Desktop */}
               {!isMobile && (
                 <NavigationMenu className="flex">
                   <NavigationMenuList className="gap-1">
                     {navigationLinks.map((link, index) => (
                       <NavigationMenuItem key={index}>
-                        <button
-                          onClick={(e) => e.preventDefault()}
+                        {/* Enlace Desktop con Link */}
+                        <Link
+                          to={link.href}
                           className={cn(
                             "group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 cursor-pointer no-underline",
-                            link.active
+                            location.pathname === link.href
                               ? "bg-accent text-accent-foreground"
                               : "text-foreground/80 hover:text-foreground"
                           )}
                         >
                           {link.label}
-                        </button>
+                        </Link>
                       </NavigationMenuItem>
                     ))}
                   </NavigationMenuList>
@@ -232,28 +246,23 @@ export const Navbar01 = React.forwardRef<HTMLElement, Navbar01Props>(
               )}
             </div>
           </div>
+
           {/* Right side */}
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="sm"
+              asChild // IMPORTANTE: Permite que el botón se comporte como un Link
               className="text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-              onClick={(e) => {
-                e.preventDefault();
-                if (onSignInClick) onSignInClick();
-              }}
             >
-              {signInText}
+              <Link to={signInHref}>{signInText}</Link>
             </Button>
             <Button
               size="sm"
+              asChild // IMPORTANTE
               className="text-sm font-medium px-4 h-9 rounded-md shadow-sm"
-              onClick={(e) => {
-                e.preventDefault();
-                if (onCtaClick) onCtaClick();
-              }}
             >
-              {ctaText}
+              <Link to={ctaHref}>{ctaText}</Link>
             </Button>
             <ModeToggle />
           </div>
