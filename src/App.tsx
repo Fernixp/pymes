@@ -5,6 +5,7 @@ import { ScrollToTop } from "./components/home/scroll-to-top";
 import { Navbar01 } from "./components/ui/shadc-io/navbar-01";
 import { HomePage } from "./pages/home";
 import PricingPage from "./pages/pricing";
+import ChatAi from "./pages/chat-ai";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
               <Navbar01 
                 navigationLinks={[
                   { label: "Home", href: "/" },
+                  { label: "Chat AI", href: "/chat-ai" },
                   { label: "Pricing", href: "/pricing" },
                   { label: "About", href: "#about" } 
                 ]}
@@ -27,6 +29,7 @@ function App() {
           <main className="container mx-auto px-4">
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/chat-ai" element={<ChatAi />} />
               <Route path="/pricing" element={<PricingPage />} />
             </Routes>
           </main>

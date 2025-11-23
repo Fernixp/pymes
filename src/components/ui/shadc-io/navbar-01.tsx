@@ -104,6 +104,7 @@ export interface Navbar01Props extends React.HTMLAttributes<HTMLElement> {
 // Default navigation links
 const defaultNavigationLinks: Navbar01NavLink[] = [
   { href: "/", label: "Home", active: true },
+  { href: "/chat-ai", label: "Chat AI" },
   { href: "/pricing", label: "Pricing" },
   { href: "#about", label: "About" },
 ];

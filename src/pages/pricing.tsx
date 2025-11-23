@@ -26,7 +26,7 @@ const plans = [
     description:
       'Para emprendedores o PyMEs que quieren diagnosticar sus primeros problemas.',
     features: [
-      '1 diagnóstico por mes',
+      '3 Diagnósticos/mes',
       'Análisis básico con Problemología',
       'Identificación del tipo de problema',
       'Reporte básico descargable',
