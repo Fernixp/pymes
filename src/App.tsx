@@ -1,12 +1,12 @@
 import { Button } from "./components/ui/button";
+import useFuturama from "./hooks/useFuturama";
 
 function App() {
+  const {fetchFuturama} = useFuturama();
   return (
     <>
       <div className="flex min-h-svh flex-col items-center justify-center">
-
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Corporis maiores enim magni nemo sed quod, dolores libero ad vel et officia hic repellendus quia incidunt impedit quo, voluptate nihil culpa.
-      <Button>Click me</Button>
+      <Button onClick={fetchFuturama}>Click me</Button>
     </div>
     </>
   );
