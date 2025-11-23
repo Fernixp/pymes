@@ -33,7 +33,7 @@ export function ScrollToTop() {
       variant="default"
       size="lg"
       className={cn(
-        "fixed bottom-8 right-8 z-50 h-15 w-15 rounded-full shadow-lg transition-all duration-300 hover:scale-110 border border-muted",
+        "hover:cursor-pointer fixed bottom-8 right-8 z-50 h-15 w-15 rounded-full shadow-lg transition-all duration-300 hover:scale-110 border border-muted",
         isVisible 
           ? "opacity-100 translate-y-0" 
           : "opacity-0 translate-y-10 pointer-events-none"

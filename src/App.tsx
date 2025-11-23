@@ -3,8 +3,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 import { ScrollToTop } from "./components/home/scroll-to-top";
 import { Navbar01 } from "./components/ui/shadc-io/navbar-01";
-import { PricingPage } from "./pages/pricing"; // Asegúrate que esta ruta sea correcta
 import { HomePage } from "./pages/home";
+import PricingPage from "./pages/pricing";
 
 function App() {
   return (
