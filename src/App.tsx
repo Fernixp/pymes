@@ -6,6 +6,7 @@ import { Navbar01 } from "./components/ui/shadc-io/navbar-01";
 import { HomePage } from "./pages/home";
 import PricingPage from "./pages/pricing";
 import ChatAi from "./pages/chat-ai";
+import Reporte from "./pages/reporte";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
                 navigationLinks={[
                   { label: "Home", href: "/" },
                   { label: "Chat AI", href: "/chat-ai" },
+                  { label: "Reporte", href: "/reporte" },
                   { label: "Pricing", href: "/pricing" },
                   { label: "About", href: "#about" } 
                 ]}
@@ -30,6 +32,7 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/chat-ai" element={<ChatAi />} />
+              <Route path="/reporte" element={<Reporte />} />
               <Route path="/pricing" element={<PricingPage />} />
             </Routes>
           </main>
