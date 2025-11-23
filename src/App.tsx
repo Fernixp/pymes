@@ -1,10 +1,10 @@
-import { Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
 import useFuturama from "@/hooks/useFuturama";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Badge } from "@/components/ui/badge";
 import { HeroSection } from "./components/home/hero-section";
+import { FeaturesSection } from "./components/home/features-section";
+import { HowItWorksSection } from "./components/home/hows-it-works-section";
+import { TheorySection } from "./components/home/theory-section";
 
 function App() {
   const { fetchFuturama } = useFuturama();
@@ -19,6 +19,9 @@ function App() {
         </header>
         <main className="container mx-auto px-4 flex flex-col items-center justify-center py-10 text-center space-y-3">
           <HeroSection />
+          <FeaturesSection />
+          <HowItWorksSection />
+          <TheorySection />
         </main>
       </div>
     </ThemeProvider>
