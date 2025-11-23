@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { DiagnosticPDF } from "@/components/report/PDFDocument";
 
 export default function Reporte() {
   const { data } = useDiagnostic(); // <--- Usar datos reales del contexto
@@ -48,10 +50,19 @@ export default function Reporte() {
               Nuevo Diagnóstico
             </Link>
           </Button>
-          <Button>
-            <Download className="mr-2 h-4 w-4" />
-            Descargar PDF
-          </Button>
+          {/* --- BOTÓN DE DESCARGA PDF --- */}
+          <PDFDownloadLink
+            document={<DiagnosticPDF data={data} />}
+            fileName={`reporte-${data.companyName.replace(/\s+/g, '-').toLowerCase()}.pdf`}
+          >
+            {/* Usamos una render prop para saber si está cargando */}
+            {({ loading }) => (
+              <Button disabled={loading}>
+                <Download className="mr-2 h-4 w-4" />
+                {loading ? 'Generando...' : 'Descargar PDF'}
+              </Button>
+            )}
+          </PDFDownloadLink>
         </div>
       </div>
 
