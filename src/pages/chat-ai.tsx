@@ -13,31 +13,52 @@ interface Message {
   content: string;
 }
 
+// 1. Definimos una constante para la Key del localStorage
+const LOCAL_STORAGE_KEY = "pymes_chat_history_v1";
+
+// Mensaje por defecto extraído para reutilizar
+const DEFAULT_MESSAGE: Message = {
+  id: "0",
+  role: "assistant",
+  content:
+    "¡Hola! Soy tu Analista Sistémico basado en IA (Gemini). Para comenzar, cuéntame: ¿Cómo se llama tu empresa y qué problema estás observando?",
+};
+
 export default function ChatAi() {
   const navigate = useNavigate();
   const { updateData, resetDiagnosis } = useDiagnostic();
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "0",
-      role: "assistant",
-      content:
-        "¡Hola! Soy tu Analista Sistémico basado en IA (Gemini). Para comenzar, cuéntame: ¿Cómo se llama tu empresa y qué problema estás observando?",
-    },
-  ]);
+  // 2. Inicialización del estado leyendo LocalStorage
+  const [messages, setMessages] = useState<Message[]>(() => {
+    try {
+      const savedMessages = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (savedMessages) {
+        return JSON.parse(savedMessages);
+      }
+    } catch (error) {
+      console.error("Error leyendo del localStorage:", error);
+    }
+    return [DEFAULT_MESSAGE];
+  });
+
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Scroll al final al cambiar mensajes
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // 3. NUEVO: Guardar en LocalStorage cada vez que 'messages' cambie
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
   }, [messages]);
 
   const processResponse = async (userInput: string) => {
     if (!userInput.trim()) return;
 
-    // 1. Guardar mensaje del usuario localmente (para mostrarlo en UI)
     const userMsg: Message = {
       id: Date.now().toString(),
       role: "user",
@@ -48,21 +69,13 @@ export default function ChatAi() {
     setIsLoading(true);
 
     try {
-      // 2. Preparar historial para la API
-      // IMPORTANTE: No incluimos el mensaje actual (userMsg) en el historial pasado a startChat,
-      // porque ese mensaje se envía en el método .sendMessage(userInput).
-      // También filtramos el primer mensaje del bot si es solo saludo, para evitar conflictos de turno
-      // con el System Prompt que insertamos en gemini.ts.
-
       const historyForApi = messages.slice(1).map((m) => ({
         role: m.role,
         parts: m.content,
       }));
 
-      // 3. Enviar a Gemini
       const responseText = await sendMessageToGemini(historyForApi, userInput);
 
-      // 4. Guardar respuesta del bot
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
@@ -70,7 +83,6 @@ export default function ChatAi() {
       };
       setMessages((prev) => [...prev, botMsg]);
     } catch (error) {
-      // El error ya se loguea en gemini.ts, aquí mostramos feedback visual
       setMessages((prev) => [
         ...prev,
         {
@@ -85,6 +97,18 @@ export default function ChatAi() {
     }
   };
 
+  // 4. Función de Reinicio mejorada
+  const handleReset = () => {
+    if (
+      confirm("¿Estás seguro de que deseas borrar toda la conversación actual?")
+    ) {
+      localStorage.removeItem(LOCAL_STORAGE_KEY); // Borrar persistencia
+      setMessages([DEFAULT_MESSAGE]); // Resetear estado visual
+      resetDiagnosis(); // Resetear contexto global
+      // No es necesario window.location.reload() si gestionamos bien el estado
+    }
+  };
+
   const handleGenerateReport = async () => {
     setIsAnalyzing(true);
     try {
@@ -95,6 +119,8 @@ export default function ChatAi() {
 
       if (data) {
         updateData(data);
+        // Opcional: Limpiar el chat al generar reporte exitoso si así lo deseas
+        // localStorage.removeItem(LOCAL_STORAGE_KEY);
         navigate("/reporte");
       } else {
         alert("Error: La IA no devolvió un JSON válido.");
@@ -141,10 +167,7 @@ export default function ChatAi() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {
-                resetDiagnosis();
-                window.location.reload();
-              }}
+              onClick={handleReset} // Usamos la nueva función handleReset
               title="Reiniciar conversación"
             >
               <RefreshCcw className="h-4 w-4" />
@@ -238,7 +261,6 @@ export default function ChatAi() {
               onClick={() => processResponse(input)}
               size="icon"
               className="mb-0.5 h-9 w-9 shadow-sm"
-              // Asegúrate que disabled incluya isLoading O isAnalyzing
               disabled={!input.trim() || isLoading || isAnalyzing}
             >
               <Send className="h-4 w-4" />

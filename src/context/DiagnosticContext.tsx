@@ -1,11 +1,10 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"; // <--- IMPORTANTE: Agregamos useEffect
 
 // Definimos la estructura de datos basada en tus requisitos sistémicos
 export interface DiagnosticData {
   companyName: string;
   problemDescription: string;
-  problemType: 'estructurado' | 'semiestructurado' | 'blando'; // Tipología
+  problemType: 'estructurado' | 'semiestructurado' | 'blando';
   subsystems: {
     ventas: number;
     compras: number;
@@ -13,10 +12,10 @@ export interface DiagnosticData {
     rrhh: number;
   };
   msbAnalysis: {
-    current: string; // Realidad
-    ideal: string;   // Modelo ideal
+    current: string;
+    ideal: string;
   }[];
-  entropyLevel: number; // 0 a 100
+  entropyLevel: number;
 }
 
 interface DiagnosticContextType {
@@ -35,17 +34,38 @@ const defaultData: DiagnosticData = {
   entropyLevel: 0,
 };
 
+// 1. Definimos la clave para LocalStorage
+const DIAGNOSTIC_STORAGE_KEY = "pymes_diagnostic_data_v1";
+
 const DiagnosticContext = createContext<DiagnosticContextType | undefined>(undefined);
 
 export const DiagnosticProvider = ({ children }: { children: ReactNode }) => {
-  const [data, setData] = useState<DiagnosticData>(defaultData);
+  // 2. Inicialización perezosa: Leemos del localStorage al arrancar
+  const [data, setData] = useState<DiagnosticData>(() => {
+    try {
+      const savedData = localStorage.getItem(DIAGNOSTIC_STORAGE_KEY);
+      if (savedData) {
+        return JSON.parse(savedData);
+      }
+    } catch (error) {
+      console.error("Error recuperando datos del diagnóstico:", error);
+    }
+    return defaultData;
+  });
+
+  // 3. Efecto para guardar cambios automáticamente
+  useEffect(() => {
+    localStorage.setItem(DIAGNOSTIC_STORAGE_KEY, JSON.stringify(data));
+  }, [data]);
 
   const updateData = (partialData: Partial<DiagnosticData>) => {
     setData((prev) => ({ ...prev, ...partialData }));
   };
 
+  // 4. Modificamos el reset para limpiar también el almacenamiento
   const resetDiagnosis = () => {
     setData(defaultData);
+    localStorage.removeItem(DIAGNOSTIC_STORAGE_KEY);
   };
 
   return (
