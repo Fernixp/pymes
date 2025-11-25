@@ -1,5 +1,5 @@
 import { useDiagnostic } from "@/context/DiagnosticContext"; // <--- Importar
-import { FileText, BarChart3, GitCompare, Lightbulb, Download, Home, TrendingDown, Sparkles, Brain } from 'lucide-react';
+import {FileJson, Info, FileText, BarChart3, GitCompare, Lightbulb, Download, Home, TrendingDown, Sparkles, Brain, TrendingUp, Scale } from 'lucide-react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,11 @@ import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { DiagnosticPDF } from "@/components/report/PDFDocument";
-
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 export default function Reporte() {
   const { data } = useDiagnostic(); // <--- Usar datos reales del contexto
 
@@ -19,18 +23,51 @@ export default function Reporte() {
     { subsystem: 'Prod.', value: data.subsystems.produccion },
     { subsystem: 'RRHH', value: data.subsystems.rrhh },
   ];
+const handleExportJSON = () => {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(data, null, 2)
+    )}`;
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = `data-sistemica-${data.companyName.replace(/\s+/g, '-').toLowerCase()}.json`;
+    link.click();
+  };
 
-  // Intervenciones dinámicas básicas basadas en la tipología
+  // Intervenciones dinámicas con Tipos de Bucles Sistémicos
   const interventions = [
     data.problemType === 'blando' 
-      ? { area: 'RRHH', text: 'Talleres de comunicación y definición de roles (MSB).', impact: 'Alto' }
-      : { area: 'Operaciones', text: 'Estandarización de procesos productivos.', impact: 'Alto' },
-    { area: 'Sistémica', text: 'Establecer reuniones de retroalimentación semanal.', impact: 'Medio' },
+      ? { 
+          area: 'RRHH', 
+          text: 'Talleres de comunicación y definición de roles (MSB).', 
+          impact: 'Alto',
+          loop: 'Refuerzo (R)' // Bucle positivo: mejora comunicación -> mejora clima -> mejora comunicación
+        }
+      : { 
+          area: 'Operaciones', 
+          text: 'Estandarización de procesos productivos.', 
+          impact: 'Alto',
+          loop: 'Compensación (B)' // Bucle negativo: detecta error -> corrige -> estabilidad
+        },
+    { 
+      area: 'Sistémica', 
+      text: 'Establecer reuniones de retroalimentación semanal.', 
+      impact: 'Medio',
+      loop: 'Compensación (B)' // Mecanismo de control para mantener el rumbo
+    },
     data.entropyLevel > 60 
-      ? { area: 'Gestión', text: 'Plan de choque para reducción de entropía.', impact: 'Crítico' }
-      : { area: 'Control', text: 'Monitorización de KPIs básicos.', impact: 'Bajo' }
+      ? { 
+          area: 'Gestión', 
+          text: 'Plan de choque para reducción de entropía.', 
+          impact: 'Crítico',
+          loop: 'Compensación (B)' 
+        }
+      : { 
+          area: 'Control', 
+          text: 'Monitorización de KPIs básicos.', 
+          impact: 'Bajo',
+          loop: 'Refuerzo (R)' // Optimización continua
+        }
   ];
-
   return (
     <div className="container mx-auto p-6 space-y-8 animate-in fade-in duration-500">
       
@@ -49,6 +86,10 @@ export default function Reporte() {
               <Home className="mr-2 h-4 w-4" />
               Nuevo Diagnóstico
             </Link>
+          </Button>
+          <Button variant="secondary" onClick={handleExportJSON} title="Exportar datos para portabilidad">
+             <FileJson className="mr-2 h-4 w-4" />
+             JSON
           </Button>
           {/* --- BOTÓN DE DESCARGA PDF --- */}
           <PDFDownloadLink
@@ -72,7 +113,25 @@ export default function Reporte() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className={data.entropyLevel > 70 ? "border-destructive/50" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Entropía Organizacional</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-sm font-medium">Entropía Organizacional</CardTitle>
+              
+              {/* NUEVO: Popover explicativo (El Escudo) */}
+              <Popover>
+                <PopoverTrigger>
+                  <Info className="h-3 w-3 text-muted-foreground hover:text-primary cursor-help transition-colors" />
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Cálculo Heurístico</h4>
+                    <p className="text-xs text-muted-foreground text-justify">
+                      Este indicador no es una medida física. Es una <strong>proyección algorítmica</strong> basada en la detección de ambigüedades, contradicciones y falta de procesos definidos en el lenguaje natural del usuario.
+                    </p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+            
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -199,6 +258,23 @@ export default function Reporte() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <Badge variant="outline" className="text-[10px] uppercase">{item.area}</Badge>
+                    
+                    <Badge 
+                      variant="secondary" 
+                      className={cn(
+                        "text-[10px] border gap-1", // Agregamos gap-1 para separar icono de texto
+                        item.loop.includes('(R)') 
+                          ? "border-green-500/50 text-green-700 bg-green-50 dark:bg-green-900/20" 
+                          : "border-blue-500/50 text-blue-700 bg-blue-50 dark:bg-blue-900/20"
+                      )}
+                    >
+                      {item.loop.includes('(R)') ? (
+                        <TrendingUp className="h-3 w-3" /> 
+                      ) : (
+                        <Scale className="h-3 w-3" />
+                      )}
+                      {item.loop}
+                    </Badge>
                   </div>
                   <p className="text-sm font-medium">{item.text}</p>
                 </div>

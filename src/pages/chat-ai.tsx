@@ -186,7 +186,7 @@ export default function ChatAi() {
                 {isAnalyzing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                    Analizando...
+                    Reduciendo variedad y calculando entropía...
                   </>
                 ) : (
                   <>
