@@ -260,7 +260,11 @@ export default function ChatAi() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Describe tu problema o responde a la IA..."
-              className="flex-1 resize-none bg-transparent py-3 px-2 text-sm outline-none placeholder:text-muted-foreground max-h-[120px] min-h-[44px]"
+              className="flex-1
+              bg-transparent py-3 px-2 text-sm outline-none 
+              placeholder:text-muted-foreground
+              field-sizing-content
+              "
               rows={1}
               disabled={isLoading || isAnalyzing}
             />
