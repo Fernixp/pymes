@@ -6,7 +6,7 @@ import { Send, Bot, User, Loader2, FileText, RefreshCcw } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useDiagnostic } from "@/context/DiagnosticContext";
 import { sendMessageToGemini, generateDiagnosticJSON } from "@/lib/gemini";
-
+import ReactMarkdown from 'react-markdown';
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -231,7 +231,12 @@ export default function ChatAi() {
                       : "bg-card border text-card-foreground rounded-tl-none bg-white/50 backdrop-blur"
                   )}
                 >
-                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                  {/*<div className="whitespace-pre-wrap">{msg.content}</div>}*/}
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown>
+                      {msg.content}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             ))}

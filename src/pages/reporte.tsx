@@ -1,5 +1,5 @@
 import { useDiagnostic } from "@/context/DiagnosticContext"; // <--- Importar
-import {FileJson, Info, FileText, BarChart3, GitCompare, Lightbulb, Download, Home, TrendingDown, Sparkles, Brain, TrendingUp, Scale } from 'lucide-react';
+import { FileJson, Info, FileText, BarChart3, GitCompare, Lightbulb, Download, Home, TrendingDown, Sparkles, Brain, TrendingUp, Scale, Printer } from 'lucide-react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ export default function Reporte() {
     { subsystem: 'Prod.', value: data.subsystems.produccion },
     { subsystem: 'RRHH', value: data.subsystems.rrhh },
   ];
-const handleExportJSON = () => {
+  const handleExportJSON = () => {
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
       JSON.stringify(data, null, 2)
     )}`;
@@ -35,42 +35,42 @@ const handleExportJSON = () => {
 
   // Intervenciones dinámicas con Tipos de Bucles Sistémicos
   const interventions = [
-    data.problemType === 'blando' 
-      ? { 
-          area: 'RRHH', 
-          text: 'Talleres de comunicación y definición de roles (MSB).', 
-          impact: 'Alto',
-          loop: 'Refuerzo (R)' // Bucle positivo: mejora comunicación -> mejora clima -> mejora comunicación
-        }
-      : { 
-          area: 'Operaciones', 
-          text: 'Estandarización de procesos productivos.', 
-          impact: 'Alto',
-          loop: 'Compensación (B)' // Bucle negativo: detecta error -> corrige -> estabilidad
-        },
-    { 
-      area: 'Sistémica', 
-      text: 'Establecer reuniones de retroalimentación semanal.', 
+    data.problemType === 'blando'
+      ? {
+        area: 'RRHH',
+        text: 'Talleres de comunicación y definición de roles (MSB).',
+        impact: 'Alto',
+        loop: 'Refuerzo (R)' // Bucle positivo: mejora comunicación -> mejora clima -> mejora comunicación
+      }
+      : {
+        area: 'Operaciones',
+        text: 'Estandarización de procesos productivos.',
+        impact: 'Alto',
+        loop: 'Compensación (B)' // Bucle negativo: detecta error -> corrige -> estabilidad
+      },
+    {
+      area: 'Sistémica',
+      text: 'Establecer reuniones de retroalimentación semanal.',
       impact: 'Medio',
       loop: 'Compensación (B)' // Mecanismo de control para mantener el rumbo
     },
-    data.entropyLevel > 60 
-      ? { 
-          area: 'Gestión', 
-          text: 'Plan de choque para reducción de entropía.', 
-          impact: 'Crítico',
-          loop: 'Compensación (B)' 
-        }
-      : { 
-          area: 'Control', 
-          text: 'Monitorización de KPIs básicos.', 
-          impact: 'Bajo',
-          loop: 'Refuerzo (R)' // Optimización continua
-        }
+    data.entropyLevel > 60
+      ? {
+        area: 'Gestión',
+        text: 'Plan de choque para reducción de entropía.',
+        impact: 'Crítico',
+        loop: 'Compensación (B)'
+      }
+      : {
+        area: 'Control',
+        text: 'Monitorización de KPIs básicos.',
+        impact: 'Bajo',
+        loop: 'Refuerzo (R)' // Optimización continua
+      }
   ];
   return (
     <div className="container mx-auto p-6 space-y-8 animate-in fade-in duration-500">
-      
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2 text-muted-foreground mb-1">
@@ -87,9 +87,12 @@ const handleExportJSON = () => {
               Nuevo Diagnóstico
             </Link>
           </Button>
-          <Button variant="secondary" onClick={handleExportJSON} title="Exportar datos para portabilidad">
-             <FileJson className="mr-2 h-4 w-4" />
-             JSON
+          <Button className="hover:cursor-pointer" variant="outline" onClick={() => window.print()}>
+            <Printer className="mr-2 h-4 w-4" /> Imprimir
+          </Button>
+          <Button className="hover:cursor-pointer" variant="outline" onClick={handleExportJSON} title="Exportar datos para portabilidad">
+            <FileJson className=" mr-2 h-4 w-4" />
+            JSON
           </Button>
           {/* --- BOTÓN DE DESCARGA PDF --- */}
           <PDFDownloadLink
@@ -115,7 +118,7 @@ const handleExportJSON = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="flex items-center gap-2">
               <CardTitle className="text-sm font-medium">Entropía Organizacional</CardTitle>
-              
+
               {/* NUEVO: Popover explicativo (El Escudo) */}
               <Popover>
                 <PopoverTrigger>
@@ -131,7 +134,7 @@ const handleExportJSON = () => {
                 </PopoverContent>
               </Popover>
             </div>
-            
+
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -141,7 +144,7 @@ const handleExportJSON = () => {
             <p className="text-xs text-muted-foreground">Nivel de desorden sistémico</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tipología de Problema</CardTitle>
@@ -154,7 +157,7 @@ const handleExportJSON = () => {
             <p className="text-xs text-muted-foreground">Según Checkland</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Subsistemas Críticos</CardTitle>
@@ -180,8 +183,8 @@ const handleExportJSON = () => {
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="subsystem" className="text-xs" />
                 <YAxis className="text-xs" domain={[0, 5]} />
-                <Tooltip 
-                   contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}
+                <Tooltip
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}
                 />
                 <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -229,7 +232,7 @@ const handleExportJSON = () => {
                   </div>
                   <div className="space-y-1">
                     <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider flex items-center gap-1">
-                       <div className="h-2 w-2 rounded-full bg-green-400"></div> Modelo Ideal
+                      <div className="h-2 w-2 rounded-full bg-green-400"></div> Modelo Ideal
                     </span>
                     <p className="text-foreground leading-relaxed pl-3 border-l-2 border-green-400/20">{gap.ideal}</p>
                   </div>
@@ -258,18 +261,18 @@ const handleExportJSON = () => {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <Badge variant="outline" className="text-[10px] uppercase">{item.area}</Badge>
-                    
-                    <Badge 
-                      variant="secondary" 
+
+                    <Badge
+                      variant="secondary"
                       className={cn(
                         "text-[10px] border gap-1", // Agregamos gap-1 para separar icono de texto
-                        item.loop.includes('(R)') 
-                          ? "border-green-500/50 text-green-700 bg-green-50 dark:bg-green-900/20" 
+                        item.loop.includes('(R)')
+                          ? "border-green-500/50 text-green-700 bg-green-50 dark:bg-green-900/20"
                           : "border-blue-500/50 text-blue-700 bg-blue-50 dark:bg-blue-900/20"
                       )}
                     >
                       {item.loop.includes('(R)') ? (
-                        <TrendingUp className="h-3 w-3" /> 
+                        <TrendingUp className="h-3 w-3" />
                       ) : (
                         <Scale className="h-3 w-3" />
                       )}
